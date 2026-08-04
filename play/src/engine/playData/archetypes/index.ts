@@ -8,6 +8,7 @@ import { HoldTickNote } from './notes/singleNotes/HoldTickNote.js'
 import { TapNote } from './notes/singleNotes/TapNote.js'
 import { SimLine } from './SimLine.js'
 import { Stage } from './Stage.js'
+import { SpeedChange } from './timeScale/SpeedChange.js'
 import { TimeScaleChange } from './timeScale/TimeScaleChange.js'
 import { TimeScaleGroup } from './timeScale/TimeScaleGroup.js'
 
@@ -19,6 +20,7 @@ export const archetypes = defineArchetypes({
 
     TimeScaleGroup,
     TimeScaleChange,
+    SpeedChange,
 
     TapNote,
     FlickNote,
@@ -30,3 +32,4 @@ export const archetypes = defineArchetypes({
 
     SimLine,
 })
+

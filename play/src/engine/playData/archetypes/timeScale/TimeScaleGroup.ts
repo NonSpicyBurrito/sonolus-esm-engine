@@ -2,38 +2,60 @@ import { archetypes } from '..'
 import {
     TimeScaleSegment,
     getScaledTime,
-} from '../../../../../../shared/src/engine/data/timeScaleSegment'
+} from '../../../../../../shared/src/engine/data/timeScaleSegment.js'
 import { options } from '../../../configuration/options'
+import {
+    getSpeedChangeBeat,
+    getSpeedChangeTimeScale,
+    getSpeedChangeEase,
+    getSpeedChangeNext,
+} from './TimeScaleChange.js'
 
-export const getHeadImport = (group: number) =>
-    archetypes.TimeScaleChange.import.get(archetypes.TimeScaleGroup.import.get(group).head)
+export const getHeadIndex = (group: number): number => {
+    const groupImport = archetypes.TimeScaleGroup.import.get(group || 0)
+    return (groupImport && groupImport.head) || 0
+}
 
 export const getCurrentScaledTime = (group: number) =>
-    getScaledTime(time.now, archetypes.TimeScaleGroup.sharedMemory.get(group))
+    getScaledTime(time.now, archetypes.TimeScaleGroup.sharedMemory.get(group || 0))
 
 export const getScaledTimeAt = (group: number, targetTime: number) => {
-    const headImport = getHeadImport(group)
+    const headIndex = getHeadIndex(group)
+    if (!headIndex) return targetTime
 
-    const headTime = bpmChanges.at(headImport.beat).time
-    if (targetTime <= headTime) return targetTime * headImport.timeScale
+    const headBeat = getSpeedChangeBeat(headIndex)
+    const headTimeScale = getSpeedChangeTimeScale(headIndex)
+    const headEase = getSpeedChangeEase(headIndex)
+
+    const headTime = bpmChanges.at(headBeat).time
+    if (targetTime <= headTime) return targetTime * headTimeScale
 
     const segment: TimeScaleSegment = {
-        scaledTime: headTime * headImport.timeScale,
+        scaledTime: headTime * headTimeScale,
         time: headTime,
-        timeScale: headImport.timeScale,
+        timeScale: headTimeScale,
+        ease: headEase,
+        nextTime: 0,
+        nextTimeScale: headTimeScale,
     }
 
-    let next = headImport.next
+    let next = getSpeedChangeNext(headIndex)
     while (next) {
-        const nextImport = archetypes.TimeScaleChange.import.get(next)
+        const nextTimeScale = getSpeedChangeTimeScale(next)
+        const nextBeat = getSpeedChangeBeat(next)
+        const nextEase = getSpeedChangeEase(next)
+        const nextTime = bpmChanges.at(nextBeat).time
 
-        const nextTime = bpmChanges.at(nextImport.beat).time
+        segment.nextTime = nextTime
+        segment.nextTimeScale = nextTimeScale
+
         if (targetTime <= nextTime) break
 
         segment.scaledTime = getScaledTime(nextTime, segment)
         segment.time = nextTime
-        segment.timeScale = nextImport.timeScale
-        next = nextImport.next
+        segment.timeScale = nextTimeScale
+        segment.ease = nextEase
+        next = getSpeedChangeNext(next)
     }
 
     return getScaledTime(targetTime, segment)
@@ -53,12 +75,29 @@ export class TimeScaleGroup extends Archetype {
     preprocess() {
         this.sharedMemory.noteDuration = 5 / (this.import.noteSpeed || options.noteSpeed)
 
-        const headImport = archetypes.TimeScaleChange.import.get(this.import.head)
+        const headIndex = this.import.head
+        if (headIndex) {
+            const headBeat = getSpeedChangeBeat(headIndex)
+            const headTimeScale = getSpeedChangeTimeScale(headIndex)
+            const headEase = getSpeedChangeEase(headIndex)
+            const headNext = getSpeedChangeNext(headIndex)
 
-        this.sharedMemory.timeScale = headImport.timeScale
+            this.sharedMemory.timeScale = headTimeScale
+            this.sharedMemory.ease = headEase
+            this.sharedMemory.time = bpmChanges.at(headBeat).time
+            this.sharedMemory.scaledTime = this.sharedMemory.time * headTimeScale
+            if (headNext) {
+                const nextBeat = getSpeedChangeBeat(headNext)
+                const nextTimeScale = getSpeedChangeTimeScale(headNext)
+                this.sharedMemory.nextTime = bpmChanges.at(nextBeat).time
+                this.sharedMemory.nextTimeScale = nextTimeScale
+            }
+        }
     }
 
     spawnOrder() {
         return 999999
     }
 }
+
+

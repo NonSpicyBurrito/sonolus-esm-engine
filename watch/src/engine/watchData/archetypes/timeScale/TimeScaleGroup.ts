@@ -2,14 +2,22 @@ import { archetypes } from '..'
 import {
     TimeScaleSegment,
     getScaledTime,
-} from '../../../../../../shared/src/engine/data/timeScaleSegment'
+} from '../../../../../../shared/src/engine/data/timeScaleSegment.js'
 import { options } from '../../../configuration/options'
+import {
+    getSpeedChangeBeatWatch,
+    getSpeedChangeTimeScaleWatch,
+    getSpeedChangeEaseWatch,
+    getSpeedChangeNextWatch,
+} from './TimeScaleChange.js'
 
-export const getHeadImport = (group: number) =>
-    archetypes.TimeScaleChange.import.get(archetypes.TimeScaleGroup.import.get(group).head)
+export const getHeadIndexWatch = (group: number): number => {
+    const groupImport = archetypes.TimeScaleGroup.import.get(group || 0)
+    return (groupImport && groupImport.head) || 0
+}
 
 export const getCurrentScaledTime = (group: number) => {
-    const groupSharedMemory = archetypes.TimeScaleGroup.sharedMemory.get(group)
+    const groupSharedMemory = archetypes.TimeScaleGroup.sharedMemory.get(group || 0)
 
     if (time.now <= groupSharedMemory.head.time)
         return getScaledTime(time.now, groupSharedMemory.head)
@@ -21,28 +29,42 @@ export const getCurrentScaledTime = (group: number) => {
 }
 
 export const getScaledTimeAt = (group: number, targetTime: number) => {
-    const headImport = getHeadImport(group)
+    const headIndex = getHeadIndexWatch(group)
+    if (!headIndex) return targetTime
 
-    const headTime = bpmChanges.at(headImport.beat).time
-    if (targetTime <= headTime) return targetTime * headImport.timeScale
+    const headBeat = getSpeedChangeBeatWatch(headIndex)
+    const headTimeScale = getSpeedChangeTimeScaleWatch(headIndex)
+    const headEase = getSpeedChangeEaseWatch(headIndex)
+
+    const headTime = bpmChanges.at(headBeat).time
+    if (targetTime <= headTime) return targetTime * headTimeScale
 
     const segment: TimeScaleSegment = {
-        scaledTime: headTime * headImport.timeScale,
+        scaledTime: headTime * headTimeScale,
         time: headTime,
-        timeScale: headImport.timeScale,
+        timeScale: headTimeScale,
+        ease: headEase,
+        nextTime: 0,
+        nextTimeScale: headTimeScale,
     }
 
-    let next = headImport.next
+    let next = getSpeedChangeNextWatch(headIndex)
     while (next) {
-        const nextImport = archetypes.TimeScaleChange.import.get(next)
+        const nextTimeScale = getSpeedChangeTimeScaleWatch(next)
+        const nextBeat = getSpeedChangeBeatWatch(next)
+        const nextEase = getSpeedChangeEaseWatch(next)
+        const nextTime = bpmChanges.at(nextBeat).time
 
-        const nextTime = bpmChanges.at(nextImport.beat).time
+        segment.nextTime = nextTime
+        segment.nextTimeScale = nextTimeScale
+
         if (targetTime <= nextTime) break
 
         segment.scaledTime = getScaledTime(nextTime, segment)
         segment.time = nextTime
-        segment.timeScale = nextImport.timeScale
-        next = nextImport.next
+        segment.timeScale = nextTimeScale
+        segment.ease = nextEase
+        next = getSpeedChangeNextWatch(next)
     }
 
     return getScaledTime(targetTime, segment)
@@ -64,12 +86,28 @@ export class TimeScaleGroup extends Archetype {
     preprocess() {
         this.sharedMemory.noteDuration = 5 / (this.import.noteSpeed || options.noteSpeed)
 
-        const headImport = archetypes.TimeScaleChange.import.get(this.import.head)
+        const headIndex = this.import.head
 
-        const head = this.sharedMemory.head
+        if (headIndex) {
+            const headBeat = getSpeedChangeBeatWatch(headIndex)
+            const headTimeScale = getSpeedChangeTimeScaleWatch(headIndex)
+            const headEase = getSpeedChangeEaseWatch(headIndex)
+            const headNext = getSpeedChangeNextWatch(headIndex)
 
-        head.time = bpmChanges.at(headImport.beat).time
-        head.timeScale = headImport.timeScale
-        head.scaledTime = head.time * head.timeScale
+            const head = this.sharedMemory.head
+
+            head.time = bpmChanges.at(headBeat).time
+            head.timeScale = headTimeScale
+            head.scaledTime = head.time * head.timeScale
+            head.ease = headEase
+            if (headNext) {
+                const nextBeat = getSpeedChangeBeatWatch(headNext)
+                const nextTimeScale = getSpeedChangeTimeScaleWatch(headNext)
+                head.nextTime = bpmChanges.at(nextBeat).time
+                head.nextTimeScale = nextTimeScale
+            }
+        }
     }
 }
+
+

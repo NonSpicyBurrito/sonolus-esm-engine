@@ -7,7 +7,13 @@ import {
     TimeScaleSegment,
 } from '../../../../../../shared/src/engine/data/timeScaleSegment'
 import { options } from '../../../configuration/options'
-import { getHeadImport, getScaledTimeAt } from '../timeScale/TimeScaleGroup'
+import { getHeadIndexWatch, getScaledTimeAt } from '../timeScale/TimeScaleGroup.js'
+import {
+    getSpeedChangeBeatWatch,
+    getSpeedChangeTimeScaleWatch,
+    getSpeedChangeEaseWatch,
+    getSpeedChangeNextWatch,
+} from '../timeScale/TimeScaleChange.js'
 
 export abstract class Note extends Archetype {
     import = this.defineImport({
@@ -26,16 +32,15 @@ export abstract class Note extends Archetype {
 
     preprocessOrder = 1
     preprocess() {
-        const noteDuration = archetypes.TimeScaleGroup.sharedMemory.get(
-            this.import.group,
-        ).noteDuration
+        const group = this.import.group || 0
+        const noteDuration = archetypes.TimeScaleGroup.sharedMemory.get(group).noteDuration || 1.5
 
         this.sharedMemory.targetTime = bpmChanges.at(this.import.beat).time
 
         this.sharedMemory.visualTime.copyFrom(
             Range.l
                 .mul(noteDuration)
-                .add(getScaledTimeAt(this.import.group, this.sharedMemory.targetTime)),
+                .add(getScaledTimeAt(group, this.sharedMemory.targetTime)),
         )
 
         this.sharedMemory.spawnTime = this.getSpawnTime(noteDuration)
@@ -44,44 +49,74 @@ export abstract class Note extends Archetype {
     }
 
     getSpawnTime(noteDuration: number) {
-        const headImport = getHeadImport(this.import.group)
+        const group = this.import.group || 0
+        const headIndex = getHeadIndexWatch(group)
+        const targetScaledTime = this.sharedMemory.visualTime.max - noteDuration
 
-        const headTime = bpmChanges.at(headImport.beat).time
-
-        if (headImport.timeScale) {
-            const minTime =
-                this.sharedMemory.visualTime.max - noteDuration * Math.sign(headImport.timeScale)
-            const delta = minTime / headImport.timeScale
-            if (delta <= headTime) return delta
-        } else if (this.sharedMemory.visualTime.max >= 0 && this.sharedMemory.visualTime.min <= 0) {
-            return -2
+        if (!headIndex) {
+            return this.sharedMemory.targetTime - noteDuration
         }
 
-        const segment: TimeScaleSegment = {
-            scaledTime: headTime * headImport.timeScale,
+        const headBeat = getSpeedChangeBeatWatch(headIndex)
+        const headTimeScale = getSpeedChangeTimeScaleWatch(headIndex)
+        const headEase = getSpeedChangeEaseWatch(headIndex)
+
+        const headTime = bpmChanges.at(headBeat).time
+        if (targetScaledTime <= headTime * headTimeScale) {
+            if (headTimeScale) return targetScaledTime / headTimeScale
+            return headTime
+        }
+
+        let segment: TimeScaleSegment = {
+            scaledTime: headTime * headTimeScale,
             time: headTime,
-            timeScale: headImport.timeScale,
+            timeScale: headTimeScale,
+            ease: headEase,
+            nextTime: 0,
+            nextTimeScale: headTimeScale,
         }
 
-        let next = headImport.next
+        let next = getSpeedChangeNextWatch(headIndex)
         while (next) {
-            const nextImport = archetypes.TimeScaleChange.import.get(next)
+            const nextTimeScale = getSpeedChangeTimeScaleWatch(next)
+            const nextBeat = getSpeedChangeBeatWatch(next)
+            const nextEase = getSpeedChangeEaseWatch(next)
+            const nextTime = bpmChanges.at(nextBeat).time
 
-            const nextTime = bpmChanges.at(nextImport.beat).time
-            const minTime =
-                this.sharedMemory.visualTime.max - noteDuration * Math.sign(segment.timeScale)
-            const delta = (minTime - segment.scaledTime) / segment.timeScale
-            if (delta >= 0 && delta <= nextTime - segment.time) break
+            segment.nextTime = nextTime
+            segment.nextTimeScale = nextTimeScale
 
-            segment.scaledTime = getScaledTime(nextTime, segment)
+            const nextScaledTime = getScaledTime(nextTime, segment)
+            if (targetScaledTime <= nextScaledTime) break
+
+            segment.scaledTime = nextScaledTime
             segment.time = nextTime
-            segment.timeScale = nextImport.timeScale
-            next = nextImport.next
+            segment.timeScale = nextTimeScale
+            segment.ease = nextEase
+            next = getSpeedChangeNextWatch(next)
         }
 
-        const minTime =
-            this.sharedMemory.visualTime.max - noteDuration * Math.sign(segment.timeScale)
-        const delta = (minTime - segment.scaledTime) / segment.timeScale
-        return segment.time + delta
+
+        const deltaS = targetScaledTime - segment.scaledTime
+
+        if (
+            segment.ease === 1 &&
+            segment.nextTime > segment.time &&
+            segment.nextTimeScale !== segment.timeScale
+        ) {
+            const accel =
+                (segment.nextTimeScale - segment.timeScale) / (segment.nextTime - segment.time)
+            const disc = segment.timeScale * segment.timeScale + 2 * accel * deltaS
+            if (disc >= 0 && Math.abs(accel) > 1e-6) {
+                const deltaT = (-segment.timeScale + Math.sqrt(disc)) / accel
+                return segment.time + deltaT
+            }
+        }
+
+        if (segment.timeScale) {
+            return segment.time + deltaS / segment.timeScale
+        }
+        return segment.time
     }
 }
+
