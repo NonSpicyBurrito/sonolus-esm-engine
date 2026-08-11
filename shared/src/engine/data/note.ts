@@ -1,4 +1,6 @@
+import { Iterator } from './iterate'
 import { lanes } from './lanes'
+import { getScaledTime, TimeScaleSegment } from './timeScaleSegment'
 
 export const note = {
     radius: 0.1125,
@@ -24,3 +26,53 @@ export const layout = (lane: number, pos: number, size: number) =>
         .add(position(lane, pos))
 
 export const position = (lane: number, pos: number) => Vec.t.mul(pos).rotate(-lane * lanes.angle)
+
+export const getNoteTargetScaledTime = (
+    iterator: Iterator<TimeScaleSegment>,
+    targetTime: number,
+) => {
+    if (targetTime < iterator.segment.time) return targetTime * iterator.segment.timeScale
+
+    while (iterator.next) {
+        if (targetTime < iterator.segment.nextTime) break
+
+        iterator.advance()
+    }
+
+    return getScaledTime(targetTime, iterator.segment)
+}
+
+export const getNoteSpawnTime = (
+    iterator: Iterator<TimeScaleSegment>,
+    maxTime: number,
+    noteDuration: number,
+) => {
+    if (iterator.segment.timeScale) {
+        const minTime = maxTime - noteDuration * Math.sign(iterator.segment.timeScale)
+        const delta = minTime / iterator.segment.timeScale
+
+        if (delta < 0) return delta
+    } else if (noteDuration > Math.abs(maxTime)) {
+        return -2
+    }
+
+    while (iterator.next) {
+        const time = getTime(maxTime, noteDuration, iterator.segment)
+        if (time >= iterator.segment.time && time < iterator.segment.nextTime) return time
+
+        iterator.advance()
+    }
+
+    return getTime(maxTime, noteDuration, iterator.segment)
+}
+
+const getTime = (maxTime: number, noteDuration: number, segment: TimeScaleSegment) => {
+    const minTime = maxTime - noteDuration * Math.sign(segment.timeScale)
+    const scaledTime = minTime - segment.scaledTime
+
+    if (segment.timeScale) {
+        return segment.time + scaledTime / segment.timeScale
+    } else {
+        return 999999
+    }
+}

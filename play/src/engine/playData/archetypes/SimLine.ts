@@ -17,7 +17,7 @@ export class SimLine extends Archetype {
     spawnTime = this.entityMemory(Number)
     visualTime = this.entityMemory(Range)
 
-    preprocessOrder = 2
+    preprocessOrder = 3
     preprocess() {
         if (!options.simLineEnabled) return
 

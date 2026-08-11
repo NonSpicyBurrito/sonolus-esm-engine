@@ -35,7 +35,7 @@ export class HoldConnector extends Archetype {
 
     effectInstanceId = this.entityMemory(ParticleEffectInstanceId)
 
-    preprocessOrder = 2
+    preprocessOrder = 3
     preprocess() {
         if (options.sfxEnabled && this.headImport.holdSfx !== SFX.None) {
             if (replay.isReplay) {

@@ -2,6 +2,7 @@ export const TimeScaleSegment = {
     scaledTime: Number,
     time: Number,
     timeScale: Number,
+    nextTime: Number,
 }
 
 export type TimeScaleSegment = ContainerType<typeof TimeScaleSegment>

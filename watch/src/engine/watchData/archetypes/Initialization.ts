@@ -12,7 +12,7 @@ export class Initialization extends Archetype {
         life: { name: 'life', type: Number },
     })
 
-    preprocessOrder = 3
+    preprocessOrder = 4
     preprocess() {
         const targetAspectRatio = 16 / 9
 
