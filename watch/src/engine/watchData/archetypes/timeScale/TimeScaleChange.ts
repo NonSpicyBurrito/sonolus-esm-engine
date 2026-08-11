@@ -11,6 +11,7 @@ export class TimeScaleChange extends Archetype {
         group: { name: 'group', type: Number },
         beat: { name: EngineArchetypeDataName.Beat, type: Number },
         timeScale: { name: EngineArchetypeDataName.TimeScale, type: Number },
+        ease: { name: 'ease', type: Boolean },
         next: { name: 'next', type: Number },
     })
 
@@ -19,6 +20,7 @@ export class TimeScaleChange extends Archetype {
     preprocess() {
         this.sharedMemory.time = bpmChanges.at(this.import.beat).time
         this.sharedMemory.timeScale = this.import.timeScale
+        this.sharedMemory.ease = !!this.import.next && this.import.ease
     }
 
     spawnTime() {

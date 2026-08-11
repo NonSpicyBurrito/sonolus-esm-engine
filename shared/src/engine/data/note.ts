@@ -70,9 +70,25 @@ const getTime = (maxTime: number, noteDuration: number, segment: TimeScaleSegmen
     const minTime = maxTime - noteDuration * Math.sign(segment.timeScale)
     const scaledTime = minTime - segment.scaledTime
 
-    if (segment.timeScale) {
-        return segment.time + scaledTime / segment.timeScale
+    if (!segment.ease || segment.timeScale === segment.nextTimeScale) {
+        if (segment.timeScale) {
+            return segment.time + scaledTime / segment.timeScale
+        } else {
+            return 999999
+        }
     } else {
-        return 999999
+        const x1 = segment.time
+        const x2 = segment.nextTime
+        const y1 = segment.timeScale
+        const y2 = segment.nextTimeScale
+        const p = scaledTime
+
+        return (
+            (-Math.sqrt((2 * p * y1) / (x1 - x2) - (2 * p * y2) / (x1 - x2) + y1 ** 2) -
+                (x1 * y1) / (x1 - x2) +
+                (x1 * y2) / (x1 - x2) +
+                y1) /
+            (2 * (y2 / (2 * (x1 - x2)) - y1 / (2 * (x1 - x2))))
+        )
     }
 }
