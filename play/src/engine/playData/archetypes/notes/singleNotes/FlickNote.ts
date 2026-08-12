@@ -111,37 +111,37 @@ export class FlickNote extends SingleNote {
         )
     }
 
-    render(layout: Rect) {
+    render(layout: Rect, a: number) {
         if (this.useMarker) {
-            super.render(layout)
+            super.render(layout, a)
 
             switch (this.flickImport.direction) {
                 case FlickDirection.Left:
                     skin.sprites.flickMarker.draw(
                         layout.toQuad().swapRotate270(),
                         [layer.marker, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
                 case FlickDirection.Right:
                     skin.sprites.flickMarker.draw(
                         layout.toQuad().swapRotate90(),
                         [layer.marker, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
                 case FlickDirection.Up:
                     skin.sprites.flickMarker.draw(
                         layout,
                         [layer.marker, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
                 case FlickDirection.Down:
                     skin.sprites.flickMarker.draw(
                         layout.toQuad().swapRotate180(),
                         [layer.marker, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
             }
@@ -151,28 +151,28 @@ export class FlickNote extends SingleNote {
                     skin.sprites.flickNoteLeft.draw(
                         layout,
                         [layer.note, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
                 case FlickDirection.Right:
                     skin.sprites.flickNoteRight.draw(
                         layout,
                         [layer.note, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
                 case FlickDirection.Up:
                     skin.sprites.flickNoteUp.draw(
                         layout,
                         [layer.note, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
                 case FlickDirection.Down:
                     skin.sprites.flickNoteDown.draw(
                         layout,
                         [layer.note, -this.sharedMemory.targetTime, -this.import.lane],
-                        1,
+                        a,
                     )
                     break
             }
