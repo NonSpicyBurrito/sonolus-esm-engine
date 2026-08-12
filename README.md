@@ -68,7 +68,7 @@ Must be the second entity in level.
 
 ### `TimeScaleGroup`
 
-- `head`: reference to the first `TimeScaleChange` entity.
+- `head`: reference to the first `TimeScaleChange` or `TimeSkip` entity.
 - `noteSpeed`.
 
 ### `TimeScaleChange`
@@ -77,7 +77,16 @@ Must be the second entity in level.
 - `#BEAT`.
 - `#TIMESCALE`.
 - `ease`: 0 = none, 1 = linear.
-- `next`: reference to the next `TimeScaleChange` entity in the group, omit if not exists.
+- `next`: reference to the next `TimeScaleChange` or `TimeSkip` entity in the group, omit if not exists.
+
+### `TimeSkip`
+
+- `group`: reference to the `TimeScaleGroup` entity it belongs to.
+- `#BEAT`.
+- `skip`.
+- `next`: reference to the next `TimeScaleChange` or `TimeSkip` entity in the group, omit if not exists.
+- `prevTimeScaleChange`: reference to the previous `TimeScaleChange` entity in the group, omit if not exists.
+- `nextTimeScaleChange`: reference to the next `TimeScaleChange` entity in the group, omit if not exists.
 
 ### `*Note`
 
