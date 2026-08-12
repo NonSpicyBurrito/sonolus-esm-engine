@@ -1,5 +1,6 @@
 export const TimeScaleSegment = {
     scaledTime: Number,
+    skip: Number,
     time: Number,
     timeScale: Number,
     ease: Boolean,
@@ -13,10 +14,11 @@ export const getScaledTime = (time: number, segment: TimeScaleSegment) => {
     if (time < segment.time) return segment.scaledTime + (time - segment.time) * segment.timeScale
 
     if (!segment.ease) {
-        return segment.scaledTime + (time - segment.time) * segment.timeScale
+        return segment.scaledTime + segment.skip + (time - segment.time) * segment.timeScale
     } else {
         return (
             segment.scaledTime +
+            segment.skip +
             (time - segment.time) *
                 Math.remap(
                     segment.time,

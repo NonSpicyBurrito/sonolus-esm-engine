@@ -9,6 +9,7 @@ import { SimLine } from './SimLine.js'
 import { Stage } from './Stage.js'
 import { TimeScaleChange } from './timeScale/TimeScaleChange.js'
 import { TimeScaleGroup } from './timeScale/TimeScaleGroup.js'
+import { TimeSkip } from './timeScale/TimeSkip.js'
 
 export const archetypes = defineArchetypes({
     Initialization,
@@ -17,6 +18,7 @@ export const archetypes = defineArchetypes({
 
     TimeScaleGroup,
     TimeScaleChange,
+    TimeSkip,
 
     TapNote,
     FlickNote,
