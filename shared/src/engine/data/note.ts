@@ -1,13 +1,5 @@
 import { lanes } from './lanes'
 
-export enum SFX {
-    Default,
-    None,
-    Alt2,
-    Alt3,
-    Alt4,
-}
-
 export const note = {
     radius: 0.1125,
 }

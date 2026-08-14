@@ -5,9 +5,9 @@ import {
     approachSize,
     note,
     position,
-    SFX,
     toT,
 } from '../../../../../shared/src/engine/data/note'
+import { SFX } from '../../../../../shared/src/engine/data/sfx'
 import { options } from '../../configuration/options'
 import { effect } from '../effect'
 import { holdEffectLayout, particle } from '../particle'

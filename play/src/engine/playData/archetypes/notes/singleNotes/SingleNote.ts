@@ -2,9 +2,9 @@ import {
     approachPos,
     approachSize,
     layout,
-    SFX,
     toT,
 } from '../../../../../../../shared/src/engine/data/note'
+import { SFX } from '../../../../../../../shared/src/engine/data/sfx'
 import { bucketWindows, windows } from '../../../../../../../shared/src/engine/data/windows'
 import { options } from '../../../../configuration/options'
 import { effect, sfxDistance } from '../../../effect'
