@@ -1,7 +1,7 @@
 import { EngineArchetypeDataName } from '@sonolus/core'
 
 import { archetypes } from '..'
-import { SFX } from '../../../../../../shared/src/engine/data/note'
+import { SFX } from '../../../../../../shared/src/engine/data/sfx'
 import {
     getScaledTime,
     TimeScaleSegment,
