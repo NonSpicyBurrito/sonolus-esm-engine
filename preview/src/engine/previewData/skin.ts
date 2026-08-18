@@ -3,6 +3,7 @@ import { SkinSpriteName } from '@sonolus/core'
 import { panel } from './panel'
 
 export const skin = defineSkin({
+    renderMode: 'lightweight',
     sprites: {
         lane: SkinSpriteName.Lane,
         laneAlternative: SkinSpriteName.LaneAlternative,
