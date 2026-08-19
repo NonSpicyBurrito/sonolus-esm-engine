@@ -12,7 +12,7 @@ import { options } from '../../configuration/options'
 import { effect } from '../effect'
 import { holdEffectLayout, particle } from '../particle'
 import { layer, skin } from '../skin'
-import { getCurrentScaledTime } from './timeScale/TimeScaleGroup'
+import { getCurrentConnectorOpacity, getCurrentScaledTime } from './timeScale/TimeScaleGroup'
 
 type DataKey = 'prev' | 'min' | 'max' | 'next'
 
@@ -72,6 +72,8 @@ export class HoldConnector extends Archetype {
             min: time.now >= this.targetTime.min ? 0 : Math.max(-1, t.min),
             max: time.now >= this.targetTime.max ? 0 : Math.max(-1, t.max),
         }
+
+        const opacity = options.connectorAlpha * getCurrentConnectorOpacity(this.group.min)
 
         const a =
             this.targetTime.max - this.targetTime.min >= 1
@@ -158,7 +160,7 @@ export class HoldConnector extends Archetype {
             skin.sprites.holdConnector.draw(
                 new Quad({ p1, p2, p3, p4 }),
                 [layer.connector, -this.targetTime.min, -this.lane.min],
-                options.connectorAlpha * Math.lerp(1, a, (i + 0.5) / 20),
+                opacity * Math.lerp(1, a, (i + 0.5) / 20),
             )
 
             if (skin.sprites.holdConnectorEnd.exists) {
@@ -166,14 +168,14 @@ export class HoldConnector extends Archetype {
                     skin.sprites.holdConnectorEnd.draw(
                         holdConnectorEndLayout(p4, p1),
                         [layer.connector, -this.targetTime.min, -this.lane.min],
-                        options.connectorAlpha,
+                        opacity,
                     )
 
                 if (i === 19 && (!this.import.next || t.max <= -1))
                     skin.sprites.holdConnectorEnd.draw(
                         holdConnectorEndLayout(p2, p3),
                         [layer.connector, -this.targetTime.min, -this.lane.min],
-                        options.connectorAlpha * a,
+                        opacity * a,
                     )
             }
         }

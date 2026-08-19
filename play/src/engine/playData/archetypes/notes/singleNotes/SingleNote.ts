@@ -11,7 +11,7 @@ import { effect, sfxDistance } from '../../../effect'
 import { hitEffectLayout } from '../../../particle'
 import { layer } from '../../../skin'
 import { scoreSystem } from '../../Initialization'
-import { getCurrentScaledTime } from '../../timeScale/TimeScaleGroup'
+import { getCurrentNoteOpacity, getCurrentScaledTime } from '../../timeScale/TimeScaleGroup'
 import { Note } from '../Note'
 
 export abstract class SingleNote extends Note {
@@ -103,7 +103,10 @@ export abstract class SingleNote extends Note {
         const t = toT(this.sharedMemory.visualTime, getCurrentScaledTime(this.import.group))
         if (t < -1) return
 
-        this.render(layout(this.import.lane, approachPos(t), approachSize(t) * options.noteSize))
+        this.render(
+            layout(this.import.lane, approachPos(t), approachSize(t) * options.noteSize),
+            getCurrentNoteOpacity(this.import.group),
+        )
     }
 
     get shouldScheduleSFX() {
@@ -147,8 +150,8 @@ export abstract class SingleNote extends Note {
         )
     }
 
-    render(layout: Rect) {
-        this.sprite.draw(layout, [layer.note, -this.sharedMemory.targetTime, -this.import.lane], 1)
+    render(layout: Rect, a: number) {
+        this.sprite.draw(layout, [layer.note, -this.sharedMemory.targetTime, -this.import.lane], a)
     }
 
     complete(hitTime: number) {

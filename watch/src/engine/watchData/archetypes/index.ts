@@ -1,3 +1,5 @@
+import { ConnectorHider } from './hiders/ConnectorHider.js'
+import { NoteHider } from './hiders/NoteHider.js'
 import { HoldConnector } from './HoldConnector.js'
 import { Initialization } from './Initialization.js'
 import { IgnoredNote } from './notes/IgnoredNote.js'
@@ -19,6 +21,9 @@ export const archetypes = defineArchetypes({
     TimeScaleGroup,
     TimeScaleChange,
     TimeSkip,
+
+    NoteHider,
+    ConnectorHider,
 
     TapNote,
     FlickNote,
