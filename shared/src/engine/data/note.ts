@@ -57,18 +57,30 @@ export const getNoteSpawnTime = (
     }
 
     while (iterator.next) {
+        if (isInSkip(maxTime, noteDuration, iterator.segment)) return iterator.segment.time
+
         const time = getTime(maxTime, noteDuration, iterator.segment)
         if (time >= iterator.segment.time && time < iterator.segment.nextTime) return time
 
         iterator.advance()
     }
 
-    return getTime(maxTime, noteDuration, iterator.segment)
+    return isInSkip(maxTime, noteDuration, iterator.segment)
+        ? iterator.segment.time
+        : getTime(maxTime, noteDuration, iterator.segment)
+}
+
+const isInSkip = (maxTime: number, noteDuration: number, segment: TimeScaleSegment) => {
+    if (!segment.skip) return false
+    const minTime = maxTime - noteDuration * Math.sign(segment.skip)
+    const scaledTime = minTime - segment.scaledTime
+
+    return scaledTime <= segment.skip
 }
 
 const getTime = (maxTime: number, noteDuration: number, segment: TimeScaleSegment) => {
     const minTime = maxTime - noteDuration * Math.sign(segment.timeScale)
-    const scaledTime = minTime - segment.scaledTime
+    const scaledTime = minTime - segment.scaledTime - segment.skip
 
     if (!segment.ease || segment.timeScale === segment.nextTimeScale) {
         if (segment.timeScale) {
