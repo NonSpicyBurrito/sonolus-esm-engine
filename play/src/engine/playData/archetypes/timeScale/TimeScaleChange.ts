@@ -1,7 +1,6 @@
 import { EngineArchetypeDataName } from '@sonolus/core'
 
-import { archetypes } from '..'
-import { getScaledTime } from '../../../../../../shared/src/engine/data/timeScaleSegment'
+import { TimeScaleSegment } from '../../../../../../shared/src/engine/data/timeScaleSegment'
 
 export class TimeScaleChange extends Archetype {
     import = this.defineImport({
@@ -11,27 +10,18 @@ export class TimeScaleChange extends Archetype {
         next: { name: 'next', type: Number },
     })
 
-    time = this.entityMemory(Number)
+    sharedMemory = this.defineSharedMemory(TimeScaleSegment)
 
     preprocess() {
-        this.time = bpmChanges.at(this.import.beat).time
+        this.sharedMemory.time = bpmChanges.at(this.import.beat).time
+        this.sharedMemory.timeScale = this.import.timeScale
     }
 
     spawnOrder() {
-        return 1000 + this.time
+        return 999999
     }
 
     shouldSpawn() {
-        return time.now >= this.time
-    }
-
-    updateSequential() {
-        const segment = archetypes.TimeScaleGroup.sharedMemory.get(this.import.group)
-
-        segment.scaledTime = getScaledTime(this.time, segment)
-        segment.time = this.time
-        segment.timeScale = this.import.timeScale
-
-        this.despawn = true
+        return false
     }
 }

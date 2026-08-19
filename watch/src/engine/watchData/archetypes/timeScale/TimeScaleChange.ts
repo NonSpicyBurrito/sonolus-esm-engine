@@ -1,7 +1,10 @@
 import { EngineArchetypeDataName } from '@sonolus/core'
 
 import { archetypes } from '..'
-import { getScaledTimeAt } from './TimeScaleGroup'
+import {
+    getScaledTime,
+    TimeScaleSegment,
+} from '../../../../../../shared/src/engine/data/timeScaleSegment'
 
 export class TimeScaleChange extends Archetype {
     import = this.defineImport({
@@ -11,41 +14,29 @@ export class TimeScaleChange extends Archetype {
         next: { name: 'next', type: Number },
     })
 
-    scaledTime = this.entityMemory(Number)
-    time = this.entityMemory(Range)
+    sharedMemory = this.defineSharedMemory(TimeScaleSegment)
 
     preprocess() {
-        this.time.min = bpmChanges.at(this.import.beat).time
-        this.scaledTime = getScaledTimeAt(this.import.group, this.time.min)
-
-        if (this.import.next) {
-            const nextImport = archetypes.TimeScaleChange.import.get(this.import.next)
-
-            this.time.max = bpmChanges.at(nextImport.beat).time
-        } else {
-            const tail = archetypes.TimeScaleGroup.sharedMemory.get(this.import.group).tail
-
-            tail.scaledTime = this.scaledTime
-            tail.time = this.time.min
-            tail.timeScale = this.import.timeScale
-
-            this.time.max = this.time.min
-        }
+        this.sharedMemory.time = bpmChanges.at(this.import.beat).time
+        this.sharedMemory.timeScale = this.import.timeScale
     }
 
     spawnTime() {
-        return this.time.min
+        return this.getHead() === this.info.index ? -999999 : this.sharedMemory.time
     }
 
     despawnTime() {
-        return this.time.max
+        return this.import.next ? this.sharedMemory.nextTime : 999999
     }
 
     updateSequential() {
-        const current = archetypes.TimeScaleGroup.sharedMemory.get(this.import.group).current
+        archetypes.TimeScaleGroup.sharedMemory.get(this.import.group).scaledTime = getScaledTime(
+            time.now,
+            this.sharedMemory,
+        )
+    }
 
-        current.scaledTime = this.scaledTime
-        current.time = this.time.min
-        current.timeScale = this.import.timeScale
+    getHead(): number {
+        return archetypes.TimeScaleGroup.import.get(this.import.group).head
     }
 }

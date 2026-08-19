@@ -1,43 +1,10 @@
 import { archetypes } from '..'
-import {
-    TimeScaleSegment,
-    getScaledTime,
-} from '../../../../../../shared/src/engine/data/timeScaleSegment'
+import { getScaledTime } from '../../../../../../shared/src/engine/data/timeScaleSegment'
 import { options } from '../../../configuration/options'
-
-export const getHeadImport = (group: number) =>
-    archetypes.TimeScaleChange.import.get(archetypes.TimeScaleGroup.import.get(group).head)
+import { iterateTimeScales } from './iterate'
 
 export const getCurrentScaledTime = (group: number) =>
-    getScaledTime(time.now, archetypes.TimeScaleGroup.sharedMemory.get(group))
-
-export const getScaledTimeAt = (group: number, targetTime: number) => {
-    const headImport = getHeadImport(group)
-
-    const headTime = bpmChanges.at(headImport.beat).time
-    if (targetTime <= headTime) return targetTime * headImport.timeScale
-
-    const segment: TimeScaleSegment = {
-        scaledTime: headTime * headImport.timeScale,
-        time: headTime,
-        timeScale: headImport.timeScale,
-    }
-
-    let next = headImport.next
-    while (next) {
-        const nextImport = archetypes.TimeScaleChange.import.get(next)
-
-        const nextTime = bpmChanges.at(nextImport.beat).time
-        if (targetTime <= nextTime) break
-
-        segment.scaledTime = getScaledTime(nextTime, segment)
-        segment.time = nextTime
-        segment.timeScale = nextImport.timeScale
-        next = nextImport.next
-    }
-
-    return getScaledTime(targetTime, segment)
-}
+    archetypes.TimeScaleGroup.sharedMemory.get(group).scaledTime
 
 export class TimeScaleGroup extends Archetype {
     import = this.defineImport({
@@ -46,19 +13,45 @@ export class TimeScaleGroup extends Archetype {
     })
 
     sharedMemory = this.defineSharedMemory({
-        ...TimeScaleSegment,
         noteDuration: Number,
+        scaledTime: Number,
     })
 
+    timeScaleIndex = this.entityMemory(Number)
+
+    preprocessOrder = 1
     preprocess() {
         this.sharedMemory.noteDuration = 5 / (this.import.noteSpeed || options.noteSpeed)
 
-        const headImport = archetypes.TimeScaleChange.import.get(this.import.head)
+        this.timeScaleIndex = this.import.head
 
-        this.sharedMemory.timeScale = headImport.timeScale
+        const iterator = iterateTimeScales(this.import.head)
+
+        let scaledTime = 0
+        while (iterator.next) {
+            iterator.segment.nextTime = iterator.nextSegment.time
+            scaledTime = getScaledTime(iterator.segment.nextTime, iterator.segment)
+
+            iterator.advance()
+
+            iterator.segment.scaledTime = scaledTime
+        }
     }
 
     spawnOrder() {
-        return 999999
+        return 2
+    }
+
+    updateSequential() {
+        const iterator = iterateTimeScales(this.timeScaleIndex)
+
+        while (iterator.next) {
+            if (time.now < iterator.segment.nextTime) break
+
+            iterator.advance()
+        }
+
+        this.timeScaleIndex = iterator.index
+        this.sharedMemory.scaledTime = getScaledTime(time.now, iterator.segment)
     }
 }

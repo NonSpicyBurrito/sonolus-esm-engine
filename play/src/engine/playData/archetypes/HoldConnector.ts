@@ -42,7 +42,7 @@ export class HoldConnector extends Archetype {
     lastActiveTime = this.entityMemory(Number)
     exportStartTime = this.entityMemory(Number)
 
-    preprocessOrder = 2
+    preprocessOrder = 3
     preprocess() {
         this.spawnTime = Math.min(this.headSharedMemory.spawnTime, this.tailSharedMemory.spawnTime)
         this.despawnTime = Math.max(
