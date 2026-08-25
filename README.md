@@ -68,7 +68,7 @@ Must be the second entity in level.
 
 ### `TimeScaleGroup`
 
-- `head`: reference to the first `TimeScaleChange` or `TimeSkip` entity.
+- `head`: reference to the first `TimeScaleChange` or `TimeSkip` entity, omit if not exists.
 - `noteSpeed`.
 - `headNoteHider`: reference to the first `NoteHider` entity, omit if not exists.
 - `headConnectorHider`: reference to the first `ConnectorHider` entity, omit if not exists.
