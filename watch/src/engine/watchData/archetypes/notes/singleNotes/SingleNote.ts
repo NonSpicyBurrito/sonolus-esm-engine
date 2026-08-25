@@ -84,7 +84,7 @@ export abstract class SingleNote extends Note {
     }
 
     spawnTime() {
-        return this.sharedMemory.spawnTime
+        return Math.min(this.sharedMemory.spawnTime, this.singleSharedMemory.despawnTime - 0.1)
     }
 
     despawnTime() {
