@@ -43,6 +43,8 @@ export class TimeScaleGroup extends Archetype {
     }
 
     preprocessTimeScales() {
+        if (!this.import.head) return
+
         this.timeScaleIndex = this.import.head
 
         const iterator = iterateTimeScales(this.import.head)
@@ -106,6 +108,11 @@ export class TimeScaleGroup extends Archetype {
     }
 
     updateScaledTime() {
+        if (!this.import.head) {
+            this.sharedMemory.scaledTime = time.now
+            return
+        }
+
         const iterator = iterateTimeScales(this.timeScaleIndex)
 
         while (iterator.next) {

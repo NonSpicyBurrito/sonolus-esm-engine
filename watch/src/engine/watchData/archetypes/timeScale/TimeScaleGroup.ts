@@ -38,6 +38,8 @@ export class TimeScaleGroup extends Archetype {
     }
 
     preprocessTimeScales() {
+        if (!this.import.head) return
+
         const iterator = iterateTimeScales(this.import.head)
 
         let scaledTime = 0
@@ -82,5 +84,17 @@ export class TimeScaleGroup extends Archetype {
 
             iterator.advance()
         }
+    }
+
+    spawnTime() {
+        return this.import.head ? 0 : -999999
+    }
+
+    despawnTime() {
+        return this.import.head ? 0 : 999999
+    }
+
+    updateSequential() {
+        this.sharedMemory.scaledTime = time.now
     }
 }
