@@ -31,6 +31,8 @@ export const getNoteTargetScaledTime = (
     iterator: Iterator<TimeScaleSegment>,
     targetTime: number,
 ) => {
+    if (!iterator.index) return targetTime
+
     if (targetTime < iterator.segment.time) return targetTime * iterator.segment.timeScale
 
     while (iterator.next) {
