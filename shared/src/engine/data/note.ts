@@ -55,7 +55,7 @@ export const getNoteSpawnTime = (
         const minTime = maxTime - noteDuration * Math.sign(iterator.segment.timeScale)
         const delta = minTime / iterator.segment.timeScale
 
-        if (delta < 0) return delta
+        if (delta < iterator.segment.time) return delta
     } else if (noteDuration > Math.abs(maxTime)) {
         return -2
     }
