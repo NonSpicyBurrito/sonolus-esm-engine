@@ -42,7 +42,9 @@ export class TimeScaleGroup extends Archetype {
 
         const iterator = iterateTimeScales(this.import.head)
 
-        let scaledTime = 0
+        let scaledTime = iterator.segment.time * iterator.segment.timeScale
+        iterator.segment.scaledTime = scaledTime
+
         while (iterator.next) {
             iterator.segment.nextTime = iterator.nextSegment.time
             iterator.segment.nextTimeScale = iterator.nextSegment.timeScale
