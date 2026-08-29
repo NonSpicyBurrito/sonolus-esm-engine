@@ -1,4 +1,8 @@
 import { archetypes } from '..'
+import {
+    preprocessHiders,
+    preprocessTimeScales,
+} from '../../../../../../shared/src/engine/data/group'
 import { getOpacity } from '../../../../../../shared/src/engine/data/hiderSegment'
 import { getScaledTime } from '../../../../../../shared/src/engine/data/timeScaleSegment'
 import { options } from '../../../configuration/options'
@@ -47,20 +51,7 @@ export class TimeScaleGroup extends Archetype {
 
         this.timeScaleIndex = this.import.head
 
-        const iterator = iterateTimeScales(this.import.head)
-
-        let scaledTime = iterator.segment.time * iterator.segment.timeScale
-        iterator.segment.scaledTime = scaledTime
-
-        while (iterator.next) {
-            iterator.segment.nextTime = iterator.nextSegment.time
-            iterator.segment.nextTimeScale = iterator.nextSegment.timeScale
-            scaledTime = getScaledTime(iterator.segment.nextTime, iterator.segment)
-
-            iterator.advance()
-
-            iterator.segment.scaledTime = scaledTime
-        }
+        preprocessTimeScales(iterateTimeScales(this.import.head))
     }
 
     preprocessNoteHiders() {
@@ -71,14 +62,7 @@ export class TimeScaleGroup extends Archetype {
 
         this.noteHiderIndex = this.import.headNoteHider
 
-        const iterator = iterateNoteHiders(this.import.headNoteHider)
-
-        while (iterator.next) {
-            iterator.segment.nextTime = iterator.nextSegment.time
-            iterator.segment.nextOpacity = iterator.nextSegment.opacity
-
-            iterator.advance()
-        }
+        preprocessHiders(iterateNoteHiders(this.import.headNoteHider))
     }
 
     preprocessConnectorHiders() {
@@ -89,14 +73,7 @@ export class TimeScaleGroup extends Archetype {
 
         this.connectorHiderIndex = this.import.headConnectorHider
 
-        const iterator = iterateConnectorHiders(this.import.headConnectorHider)
-
-        while (iterator.next) {
-            iterator.segment.nextTime = iterator.nextSegment.time
-            iterator.segment.nextOpacity = iterator.nextSegment.opacity
-
-            iterator.advance()
-        }
+        preprocessHiders(iterateConnectorHiders(this.import.headConnectorHider))
     }
 
     spawnOrder() {
