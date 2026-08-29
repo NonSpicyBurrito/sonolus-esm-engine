@@ -57,7 +57,7 @@ export class Initialization extends Archetype {
         ui.menu.set({
             anchor: uiRect.rt,
             pivot: { x: 1, y: 1 },
-            size: Vec.one.mul(stage.radius * 0.13).mul(ui.configuration.menu.scale),
+            size: new Vec(0.2, 0.2).mul(ui.configuration.menu.scale),
             rotation: 0,
             alpha: ui.configuration.menu.alpha,
             horizontalAlign: HorizontalAlign.Center,
@@ -65,21 +65,18 @@ export class Initialization extends Archetype {
         })
 
         ui.metric.primary.bar.set({
-            anchor: uiRect.rt
-                .sub(new Vec(gap, 0))
-                .sub(new Vec(stage.radius * 0.13, 0).mul(ui.configuration.menu.scale)),
-            pivot: { x: 1, y: 1 },
-            size: new Vec(stage.radius * 1.2, 0.15).mul(ui.configuration.metric.primary.scale),
+            anchor: uiRect.lt,
+            pivot: { x: 0, y: 1 },
+            size: new Vec(0.75, 0.15).mul(ui.configuration.metric.primary.scale),
             rotation: 0,
             alpha: ui.configuration.metric.primary.alpha,
             horizontalAlign: HorizontalAlign.Left,
             background: true,
         })
         ui.metric.primary.value.set({
-            anchor: uiRect.rt
-                .sub(new Vec(gap, 0))
-                .sub(new Vec(stage.radius * 0.13, 0).mul(ui.configuration.menu.scale))
-                .sub(new Vec(0.035, 0.035).mul(ui.configuration.metric.primary.scale)),
+            anchor: uiRect.lt.add(
+                new Vec(0.715, -0.035).mul(ui.configuration.metric.primary.scale),
+            ),
             pivot: { x: 1, y: 1 },
             size: new Vec(0, 0.08).mul(ui.configuration.metric.primary.scale),
             rotation: 0,
@@ -89,20 +86,21 @@ export class Initialization extends Archetype {
         })
 
         ui.metric.secondary.bar.set({
-            anchor: uiRect.lt,
-            pivot: { x: 0, y: 1 },
-            size: new Vec(stage.radius * 0.65, 0.15).mul(ui.configuration.metric.secondary.scale),
+            anchor: uiRect.rt
+                .sub(new Vec(gap, 0))
+                .sub(new Vec(0.2, 0).mul(ui.configuration.menu.scale)),
+            pivot: { x: 1, y: 1 },
+            size: new Vec(0.5, 0.15).mul(ui.configuration.metric.secondary.scale),
             rotation: 0,
             alpha: ui.configuration.metric.secondary.alpha,
             horizontalAlign: HorizontalAlign.Left,
             background: true,
         })
         ui.metric.secondary.value.set({
-            anchor: uiRect.lt.add(
-                new Vec(stage.radius * 0.65 - 0.035, -0.035).mul(
-                    ui.configuration.metric.secondary.scale,
-                ),
-            ),
+            anchor: uiRect.rt
+                .sub(new Vec(gap, 0))
+                .sub(new Vec(0.2, 0).mul(ui.configuration.menu.scale))
+                .sub(new Vec(0.035, 0.035).mul(ui.configuration.metric.secondary.scale)),
             pivot: { x: 1, y: 1 },
             size: new Vec(0, 0.08).mul(ui.configuration.metric.secondary.scale),
             rotation: 0,
