@@ -1,8 +1,8 @@
 import { EngineConfigurationUI } from '@sonolus/core'
 
 export const ui: EngineConfigurationUI = {
-    primaryMetric: 'arcade',
-    secondaryMetric: 'life',
+    primaryMetric: 'life',
+    secondaryMetric: 'arcadePercentage',
     menuVisibility: {
         scale: 1,
         alpha: 1,
