@@ -14,10 +14,10 @@
     "build": "sonolus-cli --build ./play && sonolus-cli --build ./watch && sonolus-cli --build ./preview && sonolus-cli --build ./tutorial"
   },
   "devDependencies": {
-    "@sonolus/core": "~7.15.3",
-    "@sonolus/sonolus.js": "~9.7.3",
-    "oxfmt": "^0.62.0",
-    "oxlint": "^1.77.0",
+    "@sonolus/core": "~7.15.4",
+    "@sonolus/sonolus.js": "~9.7.4",
+    "oxfmt": "^0.66.0",
+    "oxlint": "^1.81.0",
     "oxlint-tsgolint": "^7.0.2001",
     "typescript": "~7.0.2"
   }

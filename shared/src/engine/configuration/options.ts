@@ -3,6 +3,7 @@ import { EngineConfigurationOption, Text } from '@sonolus/core'
 export const optionsDefinition = {
     speed: {
         name: Text.Speed,
+        category: 'gameplay',
         standard: true,
         advanced: true,
         type: 'slider',
@@ -14,6 +15,7 @@ export const optionsDefinition = {
     },
     noteSpeed: {
         name: Text.NoteSpeed,
+        category: 'gameplay',
         scope: 'ESM',
         type: 'slider',
         def: 9,
@@ -23,23 +25,27 @@ export const optionsDefinition = {
     },
     mirror: {
         name: Text.Mirror,
+        category: 'gameplay',
         type: 'toggle',
         def: 0,
     },
     sfxEnabled: {
         name: Text.Effect,
+        category: 'audio',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
     },
     autoSFX: {
         name: Text.EffectAuto,
+        category: 'audio',
         scope: 'ESM',
         type: 'toggle',
         def: 0,
     },
     noteSize: {
         name: Text.NoteSize,
+        category: 'graphics',
         scope: 'ESM',
         type: 'slider',
         def: 1,
@@ -50,12 +56,14 @@ export const optionsDefinition = {
     },
     noteEffectEnabled: {
         name: Text.NoteEffect,
+        category: 'graphics',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
     },
     noteEffectSize: {
         name: Text.NoteEffectSize,
+        category: 'graphics',
         scope: 'ESM',
         type: 'slider',
         def: 1,
@@ -66,12 +74,14 @@ export const optionsDefinition = {
     },
     simLineEnabled: {
         name: Text.Simline,
+        category: 'graphics',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
     },
     connectorAlpha: {
         name: Text.ConnectorAlpha,
+        category: 'graphics',
         scope: 'ESM',
         type: 'slider',
         def: 0.5,
@@ -82,6 +92,7 @@ export const optionsDefinition = {
     },
     previewVerticalScale: {
         name: Text.PreviewScaleVertical,
+        category: 'miscellaneous',
         scope: 'ESM',
         type: 'slider',
         def: 1,
@@ -92,24 +103,28 @@ export const optionsDefinition = {
     },
     previewMeasure: {
         name: Text.PreviewMeasure,
+        category: 'miscellaneous',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
     },
     previewBeat: {
         name: Text.PreviewBeat,
+        category: 'miscellaneous',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
     },
     previewTime: {
         name: Text.PreviewTime,
+        category: 'miscellaneous',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
     },
     previewBpm: {
         name: Text.PreviewBpm,
+        category: 'miscellaneous',
         scope: 'ESM',
         type: 'toggle',
         def: 1,
