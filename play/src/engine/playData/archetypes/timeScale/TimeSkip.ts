@@ -4,6 +4,7 @@ import { TimeScaleChange } from './TimeScaleChange'
 export class TimeSkip extends TimeScaleChange {
     skipImport = this.defineImport({
         skip: { name: 'skip', type: Number },
+        mode: { name: 'mode', type: Boolean },
         prev: { name: 'prevTimeScaleChange', type: Number },
         next: { name: 'nextTimeScaleChange', type: Number },
     })
@@ -32,6 +33,7 @@ export class TimeSkip extends TimeScaleChange {
         }
 
         this.sharedMemory.skip = (this.skipImport.skip * 60) / bpmChanges.at(this.import.beat).bpm
+        this.sharedMemory.mode = this.skipImport.mode
         super.preprocess()
     }
 }
