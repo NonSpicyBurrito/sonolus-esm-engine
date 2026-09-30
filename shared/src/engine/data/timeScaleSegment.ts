@@ -1,6 +1,7 @@
 export const TimeScaleSegment = {
     scaledTime: Number,
     skip: Number,
+    mode: Boolean,
     time: Number,
     timeScale: Number,
     ease: Boolean,
@@ -12,6 +13,8 @@ export type TimeScaleSegment = ContainerType<typeof TimeScaleSegment>
 
 export const getScaledTime = (time: number, segment: TimeScaleSegment) => {
     if (time < segment.time) return segment.scaledTime + (time - segment.time) * segment.timeScale
+
+    if (time === segment.time) return segment.scaledTime + (segment.mode ? 0 : segment.skip)
 
     if (!segment.ease) {
         return segment.scaledTime + segment.skip + (time - segment.time) * segment.timeScale

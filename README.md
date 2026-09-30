@@ -86,6 +86,7 @@ Must be the second entity in level.
 - `group`: reference to the `TimeScaleGroup` entity it belongs to.
 - `#BEAT`.
 - `skip`.
+- `mode`: 0 = inclusive, 1 = exclusive.
 - `next`: reference to the next `TimeScaleChange` or `TimeSkip` entity in the group, omit if not exists.
 - `prevTimeScaleChange`: reference to the previous `TimeScaleChange` entity in the group, omit if not exists.
 - `nextTimeScaleChange`: reference to the next `TimeScaleChange` entity in the group, omit if not exists.
